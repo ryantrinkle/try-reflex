@@ -141,6 +141,7 @@ android.applicationVariants.all { variant ->
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'androidx.core:core:1.0.0'
     ${additionalDependencies}
 }
 
