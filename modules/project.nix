@@ -39,6 +39,7 @@
     #haskell-language-server = "latest";
   }
 , index-state ? null
+, doCleanGit ? true
 , ...
 }@bot_args:
 
@@ -76,16 +77,17 @@ pkgs.lib.makeExtensible (self: let
   parsePackages = p: [ ("packages: " + builtins.concatStringsSep ", " (pkgs.lib.mapAttrsToList (k: v: "${v}") (packages p))) ];
 
   # Driver to generate a fake hackage
-  src-driver = p1: import ./src-driver.nix {
+  src-driver = { pkgs }: import ./src-driver.nix {
     inherit pkgs;
-    src = pkgs.haskell-nix.haskellLib.cleanGit {
-      inherit name src;
-    };
+    src =
+      if doCleanGit
+      then pkgs.haskell-nix.haskellLib.cleanGit { inherit name src; }
+      else src;
     extraCabalProject =
       bot_args.extraCabalProject or []
       ++ inputMapDriver.cabalProject or []
       ++ extraArgs.extraCabalProject or []
-      ++ pkgs.lib.optionals (parsePackages p1 != []) parsePackages p1;
+      ++ parsePackages pkgs;
   };
 
   checkHackageOverlays = c: v: if combinedOverlays == [ ] then c else v;
@@ -95,7 +97,7 @@ pkgs.lib.makeExtensible (self: let
     inherit name compiler-nix-name sha256map index-state;
     inputMap = inputMapDriver.inputMap // inputMap;
     pkg-def-extras = pkgdef-extras;
-    src = src-driver pkgs;
+    src = src-driver { inherit pkgs; };
     cabal-install = bot_args.cabal-install or null;
     extra-hackage-tarballs = (checkHackageOverlays {} hackage-driver.extra-hackage-tarballs) // hackage-extra-tarballs;
     extra-hackages = (checkHackageOverlays [] hackage-driver.extra-hackages) ++ extra-hackages;
@@ -125,7 +127,7 @@ in baseProject.extend (foldExtensions ([
       inherit obsidian pkgs hackage-driver;
       inherit deps baseProject;
       inherit src;
-      finalSrc = src-driver self.pkgs;
+      finalSrc = src-driver { inherit (self) pkgs; };
     };
 
     __unsafe = {
@@ -277,7 +279,7 @@ in baseProject.extend (foldExtensions ([
       (a: v: import ./cross-driver.nix {
         # Project name and source
         inherit name;
-        src = src-driver v;
+        src = src-driver { pkgs = v; };
 
         inherit sha256map;
         inherit index-state;
