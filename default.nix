@@ -105,7 +105,7 @@ in
  androidSupport = builtins.throw "androidSupport is replaced by project.nix";
  iosSupport = builtins.throw "iosSupport is replaced by project.nix";
 
- ghcjsExternsJs = null;
+ ghcjsExternsJs = ./ghcjs.externs.js;
  workOn = builtins.throw "workOn requires you to setup a project";
 
  build-wasm-app-wrapper = null;
