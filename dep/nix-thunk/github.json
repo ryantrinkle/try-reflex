@@ -1,8 +1,8 @@
 {
   "owner": "obsidiansystems",
   "repo": "nix-thunk",
-  "branch": "dylang/pure-eval",
+  "branch": "master",
   "private": false,
-  "rev": "38ad5f2168c83e4b1f07efd729a60072655a9f66",
-  "sha256": "130n8mzywbvyqd6aap6yk98zynq3r3kpj2hfzdym26plwz0rr3bj"
+  "rev": "a437dbdd16a32b8ef108bbd3474aff9707823cda",
+  "sha256": "16mj6g2vcinc885g69d1zlv40a6zrkxvv1i5s69v3hbfk13cz9lf"
 }
