@@ -21,10 +21,14 @@ let
   # - Remove this let box properly
   # Logic to bootstrap packages that isn't our local checkout
 
+  bootPkgs = import nixpkgs {
+    inherit system;
+  };
+
   # Auto add deps for everything in ./dep
   deps = rec {
     imported = {
-      nix-thunk = import ./dep/nix-thunk { };
+      nix-thunk = import ./dep/nix-thunk { pkgs = bootPkgs; };
       haskell-nix = import ./dep/haskell.nix (haskellNixArgs // { pkgs = bootPkgs; });
     };
 
@@ -62,9 +66,6 @@ let
     };
   };
 
-  bootPkgs = import nixpkgs {
-    inherit system;
-  };
   # Setup bootstrap pkgs, or alternatively the main packages
   pkgs-pre = import nixpkgs {
     inherit (obsidian) overlays config;
@@ -75,7 +76,7 @@ let
   # this is optional, if people feel the need to use their own nixpkgs
   patchedNixpkgs = (pkgs-pre.applyPatches {
     name = "patched-nixpkgs";
-    src = (import nixpkgs {}).path;
+    src = bootPkgs.path;
     patches = map pkgs-pre.fetchpatch patches;
   });
 
