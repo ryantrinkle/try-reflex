@@ -39,7 +39,6 @@
     #haskell-language-server = "latest";
   }
 , index-state ? null
-, doCleanGit ? true
 , ...
 }@bot_args:
 
@@ -76,13 +75,12 @@ pkgs.lib.makeExtensible (self: let
 
   parsePackages = p: [ ("packages: " + builtins.concatStringsSep ", " (pkgs.lib.mapAttrsToList (k: v: "${v}") (packages p))) ];
 
+  inherit (import ../dep/gitignore.nix { inherit (pkgs) lib; }) gitignoreSource;
+
   # Driver to generate a fake hackage
   src-driver = { pkgs }: import ./src-driver.nix {
     inherit pkgs;
-    src =
-      if doCleanGit
-      then pkgs.haskell-nix.haskellLib.cleanGit { inherit name src; }
-      else src;
+    src = gitignoreSource src;
     extraCabalProject =
       bot_args.extraCabalProject or []
       ++ inputMapDriver.cabalProject or []
