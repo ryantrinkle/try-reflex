@@ -18,7 +18,8 @@
 , hideDeprecated ? false # The moral equivalent of "-Wcompat -Werror" for using reflex-platform.
 }:
 
-let iosSupport = system == "x86_64-darwin";
+let nixpkgs-unstable = import ./nixpkgs-unstable;
+    iosSupport = system == "x86_64-darwin";
     androidSupport = lib.elem system [ "x86_64-linux" ];
     ghc86Support = lib.elem system ["x86_64-linux" "x86_64-darwin"];
 
@@ -543,7 +544,7 @@ in let this = rec {
   androidDevTools = [
     ghc.haven
     nixpkgs.maven
-    nixpkgs.androidsdk_9_0
+    nixpkgs-unstable.androidsdk
   ];
 
   # Tools that are useful for development under both ghc and ghcjs
