@@ -1,8 +1,8 @@
 {
   "owner": "obsidiansystems",
   "repo": "haskell.nix",
-  "branch": "make-install-plan-hidden-directories",
+  "branch": "aa/bump-haskell-nix",
   "private": false,
-  "rev": "93ed4e7dd2654cc3f7d9f7b795dd98628a6b4333",
-  "sha256": "0lr1a05fp8gsa9arwzpy18f952vlfqhs7d5ypqryv8lfxdyrwbfb"
+  "rev": "4c721b383672f00a2378672c25831dd80662fd29",
+  "sha256": "0b87pa6x8bc2zkz8a626cipqihlrv5z3xnjpsl6v6nw90gy150kr"
 }
