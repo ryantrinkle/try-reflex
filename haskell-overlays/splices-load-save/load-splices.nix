@@ -3,10 +3,10 @@
 self: super:
 
 let splicedPkg = drv:
-      if builtins.hasAttr drv.pname self.buildHaskellPackages
-      then builtins.getAttr drv.pname self.buildHaskellPackages
-      else if builtins.hasAttr (attrName drv) self.buildHaskellPackages
+      if builtins.hasAttr (attrName drv) self.buildHaskellPackages
       then builtins.getAttr (attrName drv) self.buildHaskellPackages
+      else if builtins.hasAttr drv.pname self.buildHaskellPackages
+      then builtins.getAttr drv.pname self.buildHaskellPackages
       else throw "no spliced pkg for: ${drv.name}";
 
     hasSplicedPkg = drv:
