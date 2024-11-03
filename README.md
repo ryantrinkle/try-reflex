@@ -22,6 +22,8 @@ Try Reflex lets you set up an environment from which you can use [Reflex](https:
 
 To use Reflex Platform as a build/development system for your own projects, refer to `HACKING.md`.
 
+To see what platforms and build targets we support, refer to [platform-support.md](docs/platform-support.md)
+
 To see what has changed since a previous version of Reflex Platform, see `ChangeLog.md`.
 
 Important Notes
