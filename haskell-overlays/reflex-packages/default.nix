@@ -105,7 +105,7 @@ in
         nixpkgs_oldChromium.chromium
         which
       ] ++ lib.optionals (!noGcTest) [
-        nixpkgs.iproute
+        nixpkgs.iproute2
       ];
     } // lib.optionalAttrs (!noGcTest) {
       # The headless browser run as part of gc tests would hang/crash without this
