@@ -66,7 +66,6 @@ in
       (haskellLib.doJailbreak (self.callCabal2nixWithOptions "reflex-todomvc" self._dep.reflex-todomvc (lib.concatStringsSep " " flags) {}));
   reflex-aeson-orphans = self.callCabal2nix "reflex-aeson-orphans" self._dep.reflex-aeson-orphans {};
 
-  # The tests for reflex-dom-core are not deterministic, disable them, and run them manually
   reflex-dom-core = let
     inherit (self) ghc;
     noGcTest = stdenv.hostPlatform.system != "x86_64-linux"
@@ -78,13 +77,11 @@ in
       reflexOptimizerFlag
       useTemplateHaskellFlag
       (lib.optional enableLibraryProfiling "-fprofile-reflex")
-      [ "-f-hydration-tests" ]
-      [ "-f-gc-tests" ]
     ])) {})
     (drv: {
       # TODO: Get hlint working for cross-compilation
-      #doCheck = stdenv.hostPlatform == stdenv.buildPlatform && !(ghc.isGhcjs or false);
-      doCheck = false;
+      doCheck = stdenv.hostPlatform == stdenv.buildPlatform && !(ghc.isGhcjs or false);
+
       # The headless browser run as part of the tests will exit without this
       preBuild = (drv.preBuild or "") + ''
         export HOME="$PWD"
