@@ -44,10 +44,8 @@ reflex-platform.project ({ pkgs, thunkSource, ... }: {
     bundleIdentifier = "org.reflexfrp.todomvc";
     bundleName = "Reflex TodoMVC";
   };
-  inputThunks = thunkInputs ++ pkgs.obsidianCompilers.thunkSets.aeson-2;
-  shells = [
-    "reflex-todomvc"
-  ];
+  inputThunks = thunkInputs ++ pkgs.obsidianCompilers.thunkSets.aeson-1541;
+  shells = ps: with ps; [ reflex-todomvc ];
   extraSrcFiles = {
     library.extraSrcFiles = [ "style.css" "reflex-todomvc.app" ];
     exes.reflex-todomvc.extraSrcFiles = [
