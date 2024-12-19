@@ -203,24 +203,21 @@ in baseProject.extend (foldExtensions ([
         };
       };
     };
-    android = rec {
-      impl = {
-        android = (import ./android/default.nix {
+
+    android =
+      let
+        mkImpl = sys: import ./android/default.nix {
           inherit (pkgs) pkgs buildPackages;
           acceptAndroidSdkLicenses = true;
-          # Pass the crossPkgs android-prebuilt package set
-          pkg-set = crossSystems.aarch64-android-prebuilt.pkg-set;
-        });
+          inherit (sys crossSystems) pkg-set; # Pass the crossPkgs android-prebuilt package set
+        };
 
-        android-x86 = (import ./android/default.nix {
-          inherit (pkgs) pkgs buildPackages;
-          acceptAndroidSdkLicenses = true;
-          pkg-set = crossSystems.x86_64-linux-android-prebuilt.pkg-set;
-        });
-      };
+        impl = {
+          android = mkImpl (systems: systems.aarch64-android-prebuilt);
+          android-x86 = mkImpl (systems: systems.x86_64-linux-android-prebuilt);
+        };
 
-      app = {
-        aarch64 = impl.android.buildApp {
+        mkApp = sys: (sys impl).buildApp {
           # Package is currently just filler
           package = p: p."${name}".components.exes."${name}";
           executableName = bot_args.android.name or "${name}";
@@ -231,18 +228,16 @@ in baseProject.extend (foldExtensions ([
             then builtins.abort "Need Android displayName"
             else bot_args.android.displayName;
         };
-        x86_64 = impl.android-x86.buildApp {
-          package = p: p."${name}".components."${name}";
-          executableName = bot_args.android.name or "${name}";
-          applicationId = if !bot_args.android ? applicationId
-            then builtins.abort "Need android appID"
-            else bot_args.android.applicationId;
-          displayName = if !bot_args.android ? displayName
-            then builtins.abort "Need Android displayName"
-            else bot_args.android.displayName;
+
+        app = {
+          aarch64 = mkApp (i: i.android);
+          x86_64 = mkApp (i: i.android-x86);
         };
-    };
-    };
+
+      in {
+        inherit impl app;
+      };
+
     # The android app builder currently assumes you just pass the base name of the package
     # to the builder, and we convert it to "lib${name}.so" in there
 
