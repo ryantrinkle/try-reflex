@@ -35,14 +35,19 @@ reflex-platform.project ({ pkgs, thunkSource, ... }: {
   compiler-nix-name = "ghc8107Splices";
   ghcjs-compiler-nix-name = "ghcjs8107JSString";
   android = {
+    executable = ps: exes: (exes (ps.reflex-todomvc)).reflex-todomvc;
     executableName = "reflex-todomvc";
     applicationId = "org.reflexfrp.todomvc";
     displayName = "Reflex TodoMVC";
   };
   ios = {
+    executable = ps: exes: (exes (ps.reflex-todomvc)).reflex-todomvc;
     executableName = "reflex-todomvc";
     bundleIdentifier = "org.reflexfrp.todomvc";
     bundleName = "Reflex TodoMVC";
+  };
+  web = {
+    executable = ps: exes: (exes (ps.reflex-todomvc)).reflex-todomvc;
   };
   inputThunks = thunkInputs ++ pkgs.obsidianCompilers.thunkSets.aeson-1541;
   shells = ps: with ps; [ reflex-todomvc ];
