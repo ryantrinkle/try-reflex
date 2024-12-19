@@ -22,6 +22,7 @@
 , shells ? [ ]
 , android ? { }
 , ios ? { }
+, web ? { }
 , extraCabalProject ? [ ]
 , withHoogle ? false
 # Alternative for adding --sha256 to cabal
@@ -192,7 +193,9 @@ in baseProject.extend (foldExtensions ([
 
       app = {
         aarch64 = impl.iOSaarch64 {
-          package = p: p.${name}.components.exes.${name};
+          package = if !bot_args.ios ? executable
+            then builtins.abort "Need iOS executable"
+            else ps: bot_args.ios.executable ps (p: p.components.exes);
           executableName = bot_args.ios.name or "${name}";
           bundleIdentifier = if !bot_args.ios ? bundleIdentifier
           then builtins.abort "Need iOS bundleIdentifier"
@@ -219,7 +222,9 @@ in baseProject.extend (foldExtensions ([
 
         mkApp = sys: (sys impl).buildApp {
           # Package is currently just filler
-          package = p: p."${name}".components.exes."${name}";
+          package = if !bot_args.android ? executable
+            then builtins.abort "Need android executable"
+            else ps: bot_args.android.executable ps (p: p.components.exes);
           executableName = bot_args.android.name or "${name}";
           applicationId = if !bot_args.android ? applicationId
             then builtins.abort "Need android appID"
@@ -242,7 +247,9 @@ in baseProject.extend (foldExtensions ([
     # to the builder, and we convert it to "lib${name}.so" in there
 
     # Easy way to get to the ghcjs app
-    ghcjs-app = crossSystems.ghcjs.pkg-set.config.hsPkgs."${name}".components.exes."${name}";
+    ghcjs-app = if !bot_args.web ? executable
+      then builtins.abort "Need web executable"
+      else bot_args.web.executable crossSystems.ghcjs.pkg-set.config.hsPkgs (p: p.components.exes);
 
     workOn = import ./workon.nix {
       inherit pkgs;
