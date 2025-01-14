@@ -37,16 +37,9 @@
       <version>4.3.3</version>
     </dependency>
     <dependency>
-      <groupId>com.google.firebase</groupId>
-      <artifactId>firebase-iid</artifactId>
-      <version>20.2.3</version>
-      <type>aar</type>
-    </dependency>
-    <dependency>
-      <groupId>com.google.firebase</groupId>
-      <artifactId>firebase-messaging</artifactId>
-      <version>20.2.3</version>
-      <type>aar</type>
+      <groupId>androidx.core</groupId>
+      <artifactId>androidx-core</artifactId>
+      <version>1.0.0</version>
     </dependency>
 
     <dependency>

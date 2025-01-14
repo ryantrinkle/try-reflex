@@ -141,8 +141,7 @@ android.applicationVariants.all { variant ->
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.google.firebase:firebase-iid:20.2.3'
-    implementation 'com.google.firebase:firebase-messaging:20.2.3'
+    implementation 'androidx.core:core:1.0.0'
     ${additionalDependencies}
 }
 
