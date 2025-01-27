@@ -29,10 +29,23 @@ let
   deps = rec {
     imported = {
       nix-thunk = import ./dep/nix-thunk { pkgs = bootPkgs; };
-      haskell-nix = import ./dep/haskell.nix (haskellNixArgs // { pkgs = bootPkgs; });
+      haskell-nix = import (source."haskell.nix") (haskellNixArgs // { pkgs = bootPkgs; });
     };
 
-    source = imported.nix-thunk.mapSubdirectories imported.nix-thunk.thunkSource ./dep;
+    source = let
+      inner = imported.nix-thunk.mapSubdirectories imported.nix-thunk.thunkSource ./dep;
+    in inner // {
+      "haskell.nix" = bootPkgs.applyPatches {
+        name = "haskell-nix";
+        src = inner."haskell.nix";
+        patches = builtins.map (bootPkgs.fetchpatch) [
+          {
+            url = "https://github.com/obsidiansystems/haskell.nix/commit/14788a8232973cb9a68ae7e311e3ed63f67ff823.diff";
+            sha256 = "sha256-aiZrhIMMT9z/GkrbWcdq6OQSDnbFP8T67Zbz4o1Prgo=";
+          }
+        ];
+      };
+    };
   };
 
   # Setup our special overlays and config
