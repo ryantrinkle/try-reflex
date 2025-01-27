@@ -14,7 +14,9 @@ builtins.concatMap
   let
     componentnames = removeFromList {
       toRemove = [ "setup" "library" ];
-      baseList = (builtins.attrNames attrs.${aname}.components);
+      baseList = let
+        eval = builtins.tryEval (builtins.attrNames attrs.${aname}.components);
+      in if eval.success then eval.value else [];
     };
     split = builtins.concatMap
       (cname: builtins.concatMap
@@ -22,22 +24,35 @@ builtins.concatMap
           if cname == "library" then
             # We check for library here, and pass aname cname cname instead of
             # aname cname subname because library doesn't have any sub-components
-            [{ packages.${aname}.components.${cname}.preBuild = string aname cname cname; }]
+            [
+              ({ config, lib, ... }: {
+                packages = lib.optionalAttrs (config.packages ? ${aname}) {
+                  ${aname}.components.${cname}.preBuild = string aname cname cname;
+                };
+              })
+            ]
           else
-            [{ packages.${aname}.components.${cname}.${subname}.preBuild = string aname cname subname; }]
+          [
+            ({ config, lib, ... }: {
+              packages = lib.optionalAttrs (config.packages ? ${aname}) {
+                ${aname}.components.${cname}.${subname}.preBuild = string aname cname subname;
+              };
+            })
+          ]
         )
         (builtins.attrNames attrs.${aname}.components.${cname}))
       componentnames;
   in
   [
-    {
-      packages.${aname}.components = {
-        library.preBuild = string aname "library" "library";
+    ({ config, lib, ... }: {
+      packages = lib.optionalAttrs (config.packages ? ${aname}) {
+        ${aname}.components = {
+          library.preBuild = string aname "library" "library";
+        };
       };
-    }
+    })
   ] ++ split)
   (removeFromList {
     toRemove = top.dontSplice or [ ];
-    baseList = (builtins.attrNames attrs);
+    baseList = builtins.trace (builtins.attrNames attrs) (builtins.attrNames attrs);
   })
-
