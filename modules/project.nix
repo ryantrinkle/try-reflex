@@ -311,29 +311,34 @@ in baseProject.extend (foldExtensions ([
         });
         overrides = [
           # Easier override for users to set extra files from the package src to be included in build
-          { packages.${name}.components = extraSrcFiles; }
+          ({config, lib, ... }: { packages = lib.optionalAttrs (config.packages ? "${name}") {
+              ${name}.components = extraSrcFiles;
+            };
+          })
 
           # Move this later, not hacky but should be in android configs specifically, due to some linker args
           # and how we combine this with gradle
           ({ config, lib, pkgs, ... }: {
-            packages.${name} = {
-              components.exes = lib.optionalAttrs (pkgs.stdenv.targetPlatform.isAndroid) {
-                "${name}" = {
-                  ghcOptions = [
-                    "-shared"
-                    "-fPIC"
-                    "-threaded"
-                    "-no-hs-main"
-                    "-lHSrts_thr"
-                    "-lffi"
-                    "-lm"
-                    "-llog"
-                  ];
-                  configureFlags = [
-                    "--ld-options=-shared"
-                    "--ld-options=-no-pie"
-                    "--ld-options=-Wl,--gc-sections,--version-script=${../exts/android/haskellActivity.version},-u,Java_systems_obsidian_HaskellActivity_haskellStartMain,-u,hs_main"
-                  ];
+            packages = lib.optionalAttrs (config.packages ? "${name}") {
+              ${name} = {
+                components.exes = lib.optionalAttrs (pkgs.stdenv.targetPlatform.isAndroid) {
+                  "${name}" = {
+                    ghcOptions = [
+                      "-shared"
+                      "-fPIC"
+                      "-threaded"
+                      "-no-hs-main"
+                      "-lHSrts_thr"
+                      "-lffi"
+                      "-lm"
+                      "-llog"
+                    ];
+                    configureFlags = [
+                      "--ld-options=-shared"
+                      "--ld-options=-no-pie"
+                      "--ld-options=-Wl,--gc-sections,--version-script=${../exts/android/haskellActivity.version},-u,Java_systems_obsidian_HaskellActivity_haskellStartMain,-u,hs_main"
+                    ];
+                  };
                 };
               };
             };

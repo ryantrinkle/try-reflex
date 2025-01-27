@@ -54,5 +54,5 @@ builtins.concatMap
   ] ++ split)
   (removeFromList {
     toRemove = top.dontSplice or [ ];
-    baseList = builtins.trace (builtins.attrNames attrs) (builtins.attrNames attrs);
+    baseList = (builtins.attrNames attrs);
   })
