@@ -16,6 +16,7 @@
 , haskellOverlaysPre ? []
 , haskellOverlaysPost ? haskellOverlays
 , hideDeprecated ? false # The moral equivalent of "-Wcompat -Werror" for using reflex-platform.
+, hlsSupport ? false
 }:
 
 let iosSupport = system == "x86_64-darwin";
@@ -564,6 +565,10 @@ in let this = rec {
       pkgconfig
       closurecompiler
       ;
+  } // lib.optionalAttrs hlsSupport {
+    haskell-language-server = nixpkgs.haskell.lib.justStaticExecutables (nativeHaskellPackages.override {
+      overrides = nixpkgs.haskell.overlays.haskell-language-server;
+    }).haskell-language-server;
   };
 
   workOn = haskellPackages: package: (overrideCabal package (drv: {
