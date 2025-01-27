@@ -56,7 +56,11 @@
     inherit modules;
     buildCommands = genBuildCommands defs;
     generatedHackage = genHackageForNix extra-hackage-tarballs.overlay;
-    package-overlays = map (a: { packages.${a.name}.src = a.src; }) (defs);
+    package-overlays = map (a: {config, lib, ... }: {
+       packages = lib.optionalAttrs (config.packages ? ${a.name}) {
+         ${a.name}.src = a.src;
+       };
+     }) (defs);
     extra-hackage-tarballs = {
       overlay = (writePackageDefs buildCommands).out;
     };
