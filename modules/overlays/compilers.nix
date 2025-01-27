@@ -74,7 +74,7 @@ in {
       in lib.mkFinalGHCJS {
         inherit booted-ghcjs;
         buildGHC = final.buildPackages.haskell-nix.compiler.ghcjs8107JSString;
-        installDeps = lib.installDeps;
+        #installDeps = lib.installDeps;
       };
 
       ghcjs8107JSStringSplices = let
@@ -95,7 +95,7 @@ in {
       in lib.mkFinalGHCJS {
         inherit booted-ghcjs;
         buildGHC = final.buildPackages.haskell-nix.compiler.ghcjs8107JSStringSplices;
-        installDeps = lib.installDeps;
+        #installDeps = lib.installDeps;
       };
     };
     ghc = rec {
@@ -110,7 +110,7 @@ in {
         bootPkgs = lib.bootPkgs // {
           ghc = lib.ghcForBuilding810;
         };
-        inherit (lib) sphinx installDeps;
+        inherit (lib) sphinx /*installDeps*/;
 
         buildLlvmPackages = final.buildPackages.llvmPackages_12;
         llvmPackages = final.llvmPackages_12;
@@ -138,7 +138,7 @@ in {
         bootPkgs = lib.bootPkgs // {
           ghc = lib.ghcForBuilding810;
         };
-        inherit (lib) sphinx installDeps;
+        inherit (lib) sphinx /*installDeps*/;
 
         buildLlvmPackages = final.buildPackages.llvmPackages_12;
         llvmPackages = final.llvmPackages_12;

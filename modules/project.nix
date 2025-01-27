@@ -96,7 +96,7 @@ pkgs.lib.makeExtensible (self: let
     inputMap = inputMapDriver.inputMap // inputMap;
     pkg-def-extras = pkgdef-extras;
     src = src-driver { inherit pkgs; };
-    cabal-install = bot_args.cabal-install or null;
+    #cabal-install = bot_args.cabal-install or null;
     extra-hackage-tarballs = (checkHackageOverlays {} hackage-driver.extra-hackage-tarballs) // hackage-extra-tarballs;
     extra-hackages = (checkHackageOverlays [] hackage-driver.extra-hackages) ++ extra-hackages;
 

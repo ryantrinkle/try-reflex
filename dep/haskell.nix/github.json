@@ -1,8 +1,8 @@
 {
-  "owner": "obsidiansystems",
+  "owner": "input-output-hk",
   "repo": "haskell.nix",
-  "branch": "make-install-plan-hidden-directories",
+  "branch": "master",
   "private": false,
-  "rev": "93ed4e7dd2654cc3f7d9f7b795dd98628a6b4333",
-  "sha256": "0lr1a05fp8gsa9arwzpy18f952vlfqhs7d5ypqryv8lfxdyrwbfb"
+  "rev": "351c0e12fcb0d201a32b0e8dca15a815cc9be9dc",
+  "sha256": "171ii4dlbacicy5fqf63ynlfljjphzlzjga5bdggrl04r8jczdrj"
 }

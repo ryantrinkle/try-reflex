@@ -1,5 +1,5 @@
 final: prev: {
-  mkFinalGHCJS = { booted-ghcjs, buildGHC, installDeps }: let
+  mkFinalGHCJS = { booted-ghcjs, buildGHC/*, installDeps*/ }: let
     targetPrefix = "js-unknown-ghcjs-";
   in final.runCommand "${targetPrefix}ghc-8.10.7" {
         nativeBuildInputs = [ final.xorg.lndir ];
@@ -27,7 +27,7 @@ final: prev: {
             mkdir -p lib/${targetPrefix}ghc-8.10.7
             cd lib
             lndir ${booted-ghcjs}/lib ${targetPrefix}ghc-8.10.7
-          '' + installDeps targetPrefix);
+          ''/* + installDeps targetPrefix*/);
 
     bootGHCJS = {
       configurePatches ? [ ],
@@ -106,17 +106,18 @@ final: prev: {
       done
     '';
 
-    ghcForBuilding810 = if (final.buildPlatform.isAarch64 && final.buildPlatform.isDarwin)
-                        then final.buildPackages.buildPackages.haskell-nix.bootstrap.compiler.ghc8107
-                        else if (final.buildPlatform.isAarch64 || final.targetPlatform.isAarch64)
-                        then final.buildPackages.buildPackages.haskell-nix.compiler.ghc884
-                        else final.buildPackages.buildPackages.haskell-nix.compiler.ghc865;
+    ghcForBuilding810 = final.buildPackages.buildPackages.haskell-nix.bootstrap.compiler.ghc8107;
+                        # if (final.buildPlatform.isAarch64 && final.buildPlatform.isDarwin)
+                        # then final.buildPackages.buildPackages.haskell-nix.bootstrap.compiler.ghc8107
+                        # else if (final.buildPlatform.isAarch64 || final.targetPlatform.isAarch64)
+                        # then final.buildPackages.buildPackages.haskell-nix.compiler.ghc884
+                        # else final.buildPackages.buildPackages.haskell-nix.compiler.ghc865;
 
     bootPkgs = with final.buildPackages; {
       ghc = final.buildPackages.buildPackages.haskell-nix.bootstrap.compiler."${buildBootstrapper.compilerNixName}";
-      alex = final.haskell-nix.bootstrap.packages.alex-unchecked;
-      happy = final.haskell-nix.bootstrap.packages.happy-unchecked;
-      hscolour = final.haskell-nix.bootstrap.packages.hscolour-unchecked;
+      alex = final.haskell-nix.bootstrap.packages.alex;
+      happy = final.haskell-nix.bootstrap.packages.happy;
+      hscolour = final.haskell-nix.bootstrap.packages.hscolour;
     };
 
     sphinx = with final.buildPackages; (python3Packages.sphinx_1_7_9 or python3Packages.sphinx);
