@@ -98,7 +98,7 @@ in {
         #installDeps = lib.installDeps;
       };
     };
-    ghc = rec {
+    ghc = builtins.mapAttrs (_: v: lib.makeCompilerDeps v) rec {
       ghcjs8107JSString = prev.haskell-nix.compiler.ghc8107;
       ghcjs865JSString = prev.haskell-nix.compiler.ghc865;
 

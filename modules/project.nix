@@ -101,7 +101,6 @@ pkgs.lib.makeExtensible (self: let
     extra-hackages = (checkHackageOverlays [] hackage-driver.extra-hackages) ++ extra-hackages;
 
     modules = [
-      { packages."${name}".components = extraSrcFiles; }
       # Setup the saving part of splices unconditionally
       ({ config, lib, ... }: {
         config.preBuild = ''
@@ -109,6 +108,8 @@ pkgs.lib.makeExtensible (self: let
           export EXTERNAL_SPLICES_SAVE="$out/lib/haskell.nix/$pname"
         '';
       })
+    ] ++ pkgs.lib.optionals (extraSrcFiles != {}) [
+      { packages."${name}".components = extraSrcFiles; }
     ] ++ overrides ++ hackage-driver.package-overlays ++ inputMapDriver.overrides;
   });
 in baseProject.extend (foldExtensions ([
