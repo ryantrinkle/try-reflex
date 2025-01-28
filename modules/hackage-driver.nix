@@ -58,7 +58,7 @@
     generatedHackage = genHackageForNix extra-hackage-tarballs.overlay;
     package-overlays = map (a: {config, lib, ... }: {
        packages = lib.optionalAttrs (config.packages ? ${a.name}) {
-         ${a.name}.src = a.src;
+         ${a.name}.src = lib.mkForce a.src;
        };
      }) (defs);
     extra-hackage-tarballs = {
