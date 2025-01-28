@@ -38,12 +38,7 @@ let
       "haskell.nix" = bootPkgs.applyPatches {
         name = "haskell-nix";
         src = inner."haskell.nix";
-        patches = builtins.map (bootPkgs.fetchpatch) [
-          {
-            url = "https://github.com/obsidiansystems/haskell.nix/commit/14788a8232973cb9a68ae7e311e3ed63f67ff823.diff";
-            sha256 = "sha256-aiZrhIMMT9z/GkrbWcdq6OQSDnbFP8T67Zbz4o1Prgo=";
-          }
-        ];
+        patches = [ ./dep/patches/haskell-nix.patch ];
       };
     };
   };

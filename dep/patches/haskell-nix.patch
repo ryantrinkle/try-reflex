@@ -1,0 +1,105 @@
+diff --git a/compiler/ghcjs/ghcjs.nix b/compiler/ghcjs/ghcjs.nix
+index 3240ba06..9cb5da2d 100644
+--- a/compiler/ghcjs/ghcjs.nix
++++ b/compiler/ghcjs/ghcjs.nix
+@@ -7,6 +7,8 @@
+   then "ghc884"
+   else "ghc865"
+ , ghc ? pkgs.buildPackages.ghc
++, extra-modules ? []
++, patches ? []
+ }:
+ let
+     isGhcjs88 = builtins.compareVersions ghcjsVersion "8.8.0.0" >= 0;
+@@ -14,7 +16,7 @@ let
+ 
+     project = pkgs.buildPackages.haskell-nix.ghcjsProject {
+         src = ghcjsSrc;
+-        inherit ghcjsVersion compiler-nix-name;
++        inherit ghcjsVersion compiler-nix-name extra-modules patches;
+         index-state = "2020-04-25T00:00:00Z";
+ #        plan-sha256 = "1wy2lr08maxyi7r8jiwf2gj6pdayk5vxxwh42bj4s2gg4035z0yc";
+ #        materialized = ../../materialized/ghcjs;
+@@ -201,7 +203,7 @@ let
+                  [booted-ghcjs ghc db hostDb pkgs.ncurses pkgs.gmp pkgs.libffi]
+               ++ (pkgs.haskell-nix.haskellLib.flatLibDepends db.component)
+               ++ (pkgs.haskell-nix.haskellLib.flatLibDepends hostDb.component)
+-              ));    
++              ));
+       in pkgs.stdenv.mkDerivation {
+         name = "${compilerName}-${ghcVersion}-bundle";
+         src = booted-ghcjs;
+diff --git a/lib/ghcjs-project.nix b/lib/ghcjs-project.nix
+index 49f78c4b..6c4a8d74 100644
+--- a/lib/ghcjs-project.nix
++++ b/lib/ghcjs-project.nix
+@@ -21,6 +21,7 @@
+ # of the project.
+ { pkgs, materialized-dir }:
+ { src
++, patches ? []
+ , compiler-nix-name
+ , ghc ? pkgs.buildPackages.haskell-nix.compiler.${compiler-nix-name}
+ , ghcjsVersion # Version in the ghcjs.cabal file (that we will replace)
+@@ -55,6 +56,7 @@
+     '';
+     materialized = materialized-dir + "/ghcjs/cabal/${compiler-nix-name}";
+   }
++, extra-modules ? []
+ , ...
+ }@args:
+ let
+@@ -93,7 +95,7 @@ let
+     configured-src = (pkgs.runCommandCC "configured-ghcjs-src" {
+         buildInputs = configureInputs;
+         inherit src;
+-        } ''
++        } (''
+         export HOME=$(pwd)
+         mkdir $HOME/.cabal
+         touch $HOME/.cabal/config
+@@ -104,6 +106,7 @@ let
+         # TODO: Find a better way to avoid impure version numbers
+         sed -i 's/RELEASE=NO/RELEASE=YES/' ghc/configure.ac
+         sed -i 's/${ghcjsVersion}/${ghcVersion}/' ghcjs.cabal
++        '' + builtins.concatStringsSep "\n" (map (a: "patch -p1 < ${a}") patches) + ''
+ 
+         ${
+           # TODO: How to actually fix this?
+@@ -133,16 +136,14 @@ let
+         for a in integer-gmp base unix; do
+           cp ${../overlays/patches/config.sub} lib/boot/pkg/$a/config.sub
+         done
+-        '')  // {
++        ''))  // {
+           # The configured source includes /nix/store paths and so filtering can fail.
+           filterPath = { path, ... }: path;
+         };
+         # see https://github.com/ghcjs/ghcjs/issues/751 for the happy upper bound.
+ 
+     ghcjsProject = pkgs.haskell-nix.cabalProject' (
+-        (pkgs.lib.filterAttrs
+-            (n: _: !(builtins.any (x: x == n)
+-                ["src" "ghcjsVersion" "ghcVersion" "happy" "alex" "cabal-install"])) args) // {
++        (builtins.removeAttrs args [ "extra-modules" "patches" "src" "ghcjsVersion" "ghcVersion" "happy" "alex" "cabal-install"]) // {
+         src = configured-src;
+         index-state = "2021-03-20T00:00:00Z";
+         inherit compiler-nix-name;
+@@ -165,7 +166,7 @@ let
+           packages.happy.revision = hackage.happy."1.19.9".revisions.default;
+         });
+         materialized = materialized-dir + "/ghcjs/${compiler-nix-name}";
+-        modules = [
++        modules = extra-modules ++ ([
+             (pkgs.lib.optionalAttrs (!isGhcjs88) {
+                 packages.Cabal.patches = [ ./../overlays/patches/Cabal/fix-data-dir.patch ];
+             })
+@@ -176,7 +177,7 @@ let
+                 # packages.ghcjs.components.library.configureFlags = [ "-fno-wrapper-install" ];
+                 packages.ghcjs.components.library.build-tools = [ alex happy ];
+             }
+-        ];
++        ]);
+     });
+ in ghcjsProject // {
+     # Add `configureInputs` and `bootInputs` to the shell

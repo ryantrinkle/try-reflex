@@ -57,13 +57,23 @@ in {
         packages.hashable.patches = [ ../patches/hashable/hashable.patch ];
       })
     ];
-    ghcjs = builtins.mapAttrs (_: v: v // { useLLVM = false; }) {
+    ghcjs = builtins.mapAttrs (_: v: lib.makeCompilerDeps (v // { useLLVM = false; })) {
       ghcjs8107JSString = let
         booted-ghcjs = lib.bootGHCJS {
           ghcjsSrcJson = (final._dep.source."haskell.nix" + "/compiler/ghcjs/ghcjs810-src.json");
           ghcjsVersion = "8.10.7";
           ghcVersion = "8.10.7";
           compiler-nix-name = "ghcjs8107JSString";
+          extra-modules = [
+              {
+                nonReinstallablePkgs = [
+                  "rts" "ghc-heap" "ghc-prim" "integer-gmp" "integer-simple" "base"
+                  "deepseq" "array" "ghc-boot-th" "pretty" "template-haskell"
+                  "ghc-boot" "binary" "bytestring" "filepath" "directory" "containers"
+                  "time" "unix" "Win32" "hpc" "ghci" "transformers"
+                ];
+              }
+          ];
           buildGHC = final.buildPackages.haskell-nix.compiler.ghcjs8107JSString;
           patches = [
             final._dep.fast-weak-patch
@@ -89,6 +99,16 @@ in {
           ];
           patches = [
             final._dep.fast-weak-patch
+          ];
+          extra-modules = [
+              {
+                nonReinstallablePkgs = [
+                  "rts" "ghc-heap" "ghc-prim" "integer-gmp" "integer-simple" "base"
+                  "deepseq" "array" "ghc-boot-th" "pretty" "template-haskell"
+                  "ghc-boot" "binary" "bytestring" "filepath" "directory" "containers"
+                  "time" "unix" "Win32" "hpc" "ghci" "transformers" "dlist"
+                ];
+              }
           ];
           postUnpack = lib.JSSTringPostUnpack;
         };

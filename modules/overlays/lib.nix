@@ -37,9 +37,10 @@ final: prev: {
       ghcVersion,
       compiler-nix-name,
       postUnpack ? x: "",
+      extra-modules ? [],
       buildGHC
     }: (final.callPackage (final._dep.source."haskell.nix" + "/compiler/ghcjs/ghcjs.nix") {
-      inherit ghcjsSrcJson ghcjsVersion ghcVersion compiler-nix-name;
+      inherit ghcjsSrcJson ghcjsVersion ghcVersion compiler-nix-name extra-modules;
       patches = configurePatches;
       ghc = buildGHC;
     }).overrideAttrs (drv: {

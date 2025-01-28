@@ -72,30 +72,40 @@ in crossPkgs.haskell-nix.project' {
     # since haskell.nix enables too strict of rules by default
     ++ lib.optionals (stdenv.targetPlatform.isGhcjs) ([
       {
-        config.doExactConfig = lib.mkForce false;
-        config.reinstallableLibGhc = lib.mkForce true;
+        doExactConfig = lib.mkForce false;
+        reinstallableLibGhc = lib.mkForce true;
         # We add modified packages to the compiler so we have to add them here
-        config.nonReinstallablePkgs = lib.mkForce [
+        nonReinstallablePkgs = lib.mkForce [
           "rts" "ghc-heap" "ghc-prim" "integer-gmp" "integer-simple" "base" "deepseq"
           "array" "ghc-boot-th" "pretty" "template-haskell" "ghcjs-prim" "ghcjs-th"
           "ghc" "Win32" "array" "binary" "bytestring" "containers" "directory" "filepath" "ghc-boot"
 
-          "ghc-compact" "ghc-prim" "hpc" "mtl" "parsec" "process"
-          "text"
-          "time" "transformers"
-          "unix" "xhtml" "terminfo"
+          "ghc-compact" "ghc-prim" "hpc" "mtl" "parsec" "process" "text"
+          "time" "transformers" "unix" "xhtml" "terminfo"
           # Our stuff
-          "dlist"
-          "primitive"
-          "vector"
-          "ghcjs-base"
-          #"primitive" "dlist" "vector"
-          #"aeson" "attoparsec"
+          "dlist" "primitive" "vector" "ghcjs-base"
         ];
+
+        # STUB! these are compiler packages, any override is not allowed
+        # as these are *boot* packages
+        packages = let
+          stub-package = ''
+            mkdir -p $out
+            mkdir -p $data
+            touch $out/stub-package
+            touch $data/stub-package
+            exit 0
+          '';
+        in lib.optionalAttrs (compiler-nix-name == "ghcjs8107JSString" || compiler-nix-name == "ghcjs8107JSStringSplices") {
+          dlist.components.library.preUnpack = stub-package;
+          primitive.components.library.preUnpack = stub-package;
+          vector.components.library.preUnpack = stub-package;
+          ghcjs-base.components.library.preUnpack = stub-package;
+        };
       }
     ] ++ lib.optionals (compiler-nix-name == "ghcjs8107JSString" || compiler-nix-name == "ghcjs8107JSStringSplices") crossPkgs.obsidianCompilers.jsstring-overrides)
 
-    ++ lib.optionals (crossPkgs.stdenv.targetPlatform.isGhcjs || crossPkgs.stdenv.hostPlatform != crossPkgs.stdenv.buildPlatform) (splice-driver {
+    ++ lib.optionals (!crossPkgs.stdenv.targetPlatform.isGhcjs && crossPkgs.stdenv.hostPlatform != crossPkgs.stdenv.buildPlatform) (splice-driver {
     attrs = pkg-set.config.packages;
     string = (aname: cname: subname:
       if cname == "library" then ''
